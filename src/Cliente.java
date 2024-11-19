@@ -1,4 +1,3 @@
-
 import java.time.LocalDate;
 
 public class Cliente {
@@ -6,26 +5,26 @@ public class Cliente {
     private String nome;
     private LocalDate aniversario;
     private String whatsapp;
-    private String enderecoRua;
-    private String enderecoNumero;
-    private String enderecoBairro;
-    private String enderecoComplemento;
+    private String endereco_rua; // Atualizado para corresponder ao banco
+    private String endereco_numero; // Atualizado para corresponder ao banco
+    private String endereco_bairro; // Atualizado para corresponder ao banco
+    private String endereco_complemento; // Atualizado para corresponder ao banco
 
     // Construtor padrão
     public Cliente() {}
 
-    // Construtor para inicialização de todos os campos
+    // Construtor com inicialização completa
     public Cliente(int id, String nome, LocalDate aniversario, String whatsapp, 
-                   String enderecoRua, String enderecoNumero, String enderecoBairro, 
-                   String enderecoComplemento) {
+                   String endereco_rua, String endereco_numero, String endereco_bairro, 
+                   String endereco_complemento) {
         this.id = id;
         this.nome = nome;
         this.aniversario = aniversario;
         this.whatsapp = whatsapp;
-        this.enderecoRua = enderecoRua;
-        this.enderecoNumero = enderecoNumero;
-        this.enderecoBairro = enderecoBairro;
-        this.enderecoComplemento = enderecoComplemento;
+        this.endereco_rua = endereco_rua;
+        this.endereco_numero = endereco_numero;
+        this.endereco_bairro = endereco_bairro;
+        this.endereco_complemento = endereco_complemento;
     }
 
     // Getters e Setters
@@ -61,39 +60,38 @@ public class Cliente {
         this.whatsapp = whatsapp;
     }
 
-    public String getEnderecoRua() {
-        return enderecoRua;
+    public String getEndereco_rua() {  // Atualizado
+        return endereco_rua;
     }
 
-    public void setEnderecoRua(String enderecoRua) {
-        this.enderecoRua = enderecoRua;
+    public void setEndereco_rua(String endereco_rua) {  // Atualizado
+        this.endereco_rua = endereco_rua;
     }
 
-    public String getEnderecoNumero() {
-        return enderecoNumero;
+    public String getEndereco_numero() {  // Atualizado
+        return endereco_numero;
     }
 
-    public void setEnderecoNumero(String enderecoNumero) {
-        this.enderecoNumero = enderecoNumero;
+    public void setEndereco_numero(String endereco_numero) {  // Atualizado
+        this.endereco_numero = endereco_numero;
     }
 
-    public String getEnderecoBairro() {
-        return enderecoBairro;
+    public String getEndereco_bairro() {  // Atualizado
+        return endereco_bairro;
     }
 
-    public void setEnderecoBairro(String enderecoBairro) {
-        this.enderecoBairro = enderecoBairro;
+    public void setEndereco_bairro(String endereco_bairro) {  // Atualizado
+        this.endereco_bairro = endereco_bairro;
     }
 
-    public String getEnderecoComplemento() {
-        return enderecoComplemento;
+    public String getEndereco_complemento() {  // Atualizado
+        return endereco_complemento;
     }
 
-    public void setEnderecoComplemento(String enderecoComplemento) {
-        this.enderecoComplemento = enderecoComplemento;
+    public void setEndereco_complemento(String endereco_complemento) {  // Atualizado
+        this.endereco_complemento = endereco_complemento;
     }
 
-    // Método toString para representação textual
     @Override
     public String toString() {
         return "Cliente{" +
@@ -101,10 +99,10 @@ public class Cliente {
                 ", nome='" + nome + '\'' +
                 ", aniversario=" + aniversario +
                 ", whatsapp='" + whatsapp + '\'' +
-                ", enderecoRua='" + enderecoRua + '\'' +
-                ", enderecoNumero='" + enderecoNumero + '\'' +
-                ", enderecoBairro='" + enderecoBairro + '\'' +
-                ", enderecoComplemento='" + enderecoComplemento + '\'' +
+                ", endereco_rua='" + endereco_rua + '\'' +
+                ", endereco_numero='" + endereco_numero + '\'' +
+                ", endereco_bairro='" + endereco_bairro + '\'' +
+                ", endereco_complemento='" + endereco_complemento + '\'' +
                 '}';
     }
 }

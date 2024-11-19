@@ -1,11 +1,10 @@
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProdutoDAO {
 
-    // Método para adicionar um produto ao banco de dados
+    // Adicionar um produto ao banco de dados
     public void adicionarProduto(Produto produto) {
         String sql = "INSERT INTO Produto (nome, preco, tipo) VALUES (?, ?, ?)";
         try (Connection conn = ConexaoBancoDados.obterConexao();
@@ -13,14 +12,14 @@ public class ProdutoDAO {
              
             pstmt.setString(1, produto.getNome());
             pstmt.setDouble(2, produto.getPreco());
-            pstmt.setString(3, produto.getTipo()); // Salva o tipo como String
+            pstmt.setString(3, produto.getTipo());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao adicionar produto: " + e.getMessage());
         }
     }
 
-    // Método para listar todos os produtos
+    // Listar todos os produtos
     public List<Produto> listarTodosProdutos() {
         List<Produto> produtos = new ArrayList<>();
         String sql = "SELECT * FROM Produto";
@@ -33,16 +32,16 @@ public class ProdutoDAO {
                 produto.setId(rs.getInt("id"));
                 produto.setNome(rs.getString("nome"));
                 produto.setPreco(rs.getDouble("preco"));
-                produto.setTipo(rs.getString("tipo")); // Lê o tipo como String
+                produto.setTipo(rs.getString("tipo"));
                 produtos.add(produto);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao listar produtos: " + e.getMessage());
         }
         return produtos;
     }
 
-    // Método para buscar um produto por ID
+    // Buscar um produto por ID
     public Produto buscarProduto(int id) {
         Produto produto = null;
         String sql = "SELECT * FROM Produto WHERE id = ?";
@@ -56,15 +55,15 @@ public class ProdutoDAO {
                 produto.setId(rs.getInt("id"));
                 produto.setNome(rs.getString("nome"));
                 produto.setPreco(rs.getDouble("preco"));
-                produto.setTipo(rs.getString("tipo")); // Lê o tipo como String
+                produto.setTipo(rs.getString("tipo"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao buscar produto por ID: " + e.getMessage());
         }
         return produto;
     }
 
-    // Método para atualizar um produto
+    // Atualizar um produto
     public void atualizarProduto(Produto produto) {
         String sql = "UPDATE Produto SET nome = ?, preco = ?, tipo = ? WHERE id = ?";
         try (Connection conn = ConexaoBancoDados.obterConexao();
@@ -72,15 +71,15 @@ public class ProdutoDAO {
              
             pstmt.setString(1, produto.getNome());
             pstmt.setDouble(2, produto.getPreco());
-            pstmt.setString(3, produto.getTipo()); // Atualiza o tipo como String
+            pstmt.setString(3, produto.getTipo());
             pstmt.setInt(4, produto.getId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao atualizar produto: " + e.getMessage());
         }
     }
 
-    // Método para excluir um produto
+    // Excluir um produto
     public void excluirProduto(int id) {
         String sql = "DELETE FROM Produto WHERE id = ?";
         try (Connection conn = ConexaoBancoDados.obterConexao();
@@ -89,11 +88,11 @@ public class ProdutoDAO {
             pstmt.setInt(1, id);
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao excluir produto: " + e.getMessage());
         }
     }
 
-    // Método para buscar produtos por nome
+    // Buscar produtos por nome
     public List<Produto> buscarProdutoPorNome(String nome) {
         List<Produto> produtos = new ArrayList<>();
         String sql = "SELECT * FROM Produto WHERE nome LIKE ?";
@@ -107,11 +106,11 @@ public class ProdutoDAO {
                 produto.setId(rs.getInt("id"));
                 produto.setNome(rs.getString("nome"));
                 produto.setPreco(rs.getDouble("preco"));
-                produto.setTipo(rs.getString("tipo")); // Lê o tipo como String
+                produto.setTipo(rs.getString("tipo"));
                 produtos.add(produto);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao buscar produtos por nome: " + e.getMessage());
         }
         return produtos;
     }

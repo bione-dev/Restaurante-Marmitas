@@ -1,8 +1,8 @@
-import javax.swing.*; 
-import javax.swing.table.DefaultTableModel; 
-import java.awt.*; 
-import java.util.List; 
-import java.time.LocalDate; 
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.time.LocalDate;
+import java.util.List;
 
 public class SistemaGestao extends JFrame {
     private JTabbedPane tabbedPane;
@@ -11,7 +11,7 @@ public class SistemaGestao extends JFrame {
     public SistemaGestao() {
         clienteDAO = new ClienteDAO();
 
-        setTitle("Sistema de Gestão");
+        setTitle("Restaurante Modelo");
         setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -30,7 +30,8 @@ public class SistemaGestao extends JFrame {
     private JPanel criarPainelClientes() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        String[] colunas = {"ID", "Nome", "Aniversário", "WhatsApp"};
+        // Atualização: Incluindo os novos campos na tabela
+        String[] colunas = {"ID", "Nome", "Aniversário", "WhatsApp", "Rua", "Número", "Bairro", "Complemento"};
         DefaultTableModel modeloTabela = new DefaultTableModel(colunas, 0);
         JTable tabelaClientes = new JTable(modeloTabela);
         JScrollPane scrollPane = new JScrollPane(tabelaClientes);
@@ -38,8 +39,11 @@ public class SistemaGestao extends JFrame {
 
         atualizarTabelaClientes(modeloTabela);
 
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 5, 5));
-        formPanel.setBorder(BorderFactory.createTitledBorder("Cadastrar Cliente"));
+        // Alterado para GridBagLayout para ajustar o espaçamento
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5); // Margem entre os componentes
+        gbc.fill = GridBagConstraints.HORIZONTAL;
 
         JTextField nomeField = new JTextField();
         JTextField aniversarioField = new JTextField();
@@ -49,25 +53,72 @@ public class SistemaGestao extends JFrame {
         JTextField bairroField = new JTextField();
         JTextField complementoField = new JTextField();
 
-        formPanel.add(new JLabel("Nome:"));
-        formPanel.add(nomeField);
-        formPanel.add(new JLabel("Aniversário (DD-MM-AAAA):"));
-        formPanel.add(aniversarioField);
-        formPanel.add(new JLabel("WhatsApp:"));
-        formPanel.add(whatsappField);
-        formPanel.add(new JLabel("Rua:"));
-        formPanel.add(ruaField);
-        formPanel.add(new JLabel("Número:"));
-        formPanel.add(numeroField);
-        formPanel.add(new JLabel("Bairro:"));
-        formPanel.add(bairroField);
-        formPanel.add(new JLabel("Complemento:"));
-        formPanel.add(complementoField);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        formPanel.add(new JLabel("Nome:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        formPanel.add(nomeField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        formPanel.add(new JLabel("Aniversário (AAAA-MM-DD):"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        formPanel.add(aniversarioField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        formPanel.add(new JLabel("WhatsApp:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        formPanel.add(whatsappField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        formPanel.add(new JLabel("Rua:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 3;
+        formPanel.add(ruaField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        formPanel.add(new JLabel("Número:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        formPanel.add(numeroField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        formPanel.add(new JLabel("Bairro:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        formPanel.add(bairroField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        formPanel.add(new JLabel("Complemento:"), gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        formPanel.add(complementoField, gbc);
 
         JButton adicionarButton = new JButton("Adicionar");
         JButton removerButton = new JButton("Remover Selecionado");
-        formPanel.add(adicionarButton);
-        formPanel.add(removerButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        formPanel.add(adicionarButton, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridy = 7;
+        formPanel.add(removerButton, gbc);
 
         panel.add(formPanel, BorderLayout.SOUTH);
 
@@ -86,6 +137,7 @@ public class SistemaGestao extends JFrame {
 
                 atualizarTabelaClientes(modeloTabela);
 
+                // Limpando os campos após adicionar
                 nomeField.setText("");
                 aniversarioField.setText("");
                 whatsappField.setText("");
@@ -108,7 +160,7 @@ public class SistemaGestao extends JFrame {
             }
 
             int idCliente = (int) tabelaClientes.getValueAt(linhaSelecionada, 0);
-            clienteDAO.excluirCliente(idCliente); 
+            clienteDAO.excluirCliente(idCliente);
             atualizarTabelaClientes(modeloTabela);
         });
 
@@ -116,18 +168,23 @@ public class SistemaGestao extends JFrame {
     }
 
     private void atualizarTabelaClientes(DefaultTableModel modeloTabela) {
-        modeloTabela.setRowCount(0);
-        List<Cliente> clientes = clienteDAO.listarClientes();
+        modeloTabela.setRowCount(0); // Limpa a tabela antes de adicionar os novos dados
+        List<Cliente> clientes = clienteDAO.listarClientes(); // Obtém a lista de clientes da DAO
+
+        // Adiciona cada cliente à tabela
         for (Cliente cliente : clientes) {
             modeloTabela.addRow(new Object[]{
                     cliente.getId(),
                     cliente.getNome(),
                     cliente.getAniversario(),
-                    cliente.getWhatsapp()
+                    cliente.getWhatsapp(),
+                    cliente.getEndereco_rua(), // Corrigido: usa getEndereco_rua()
+                    cliente.getEndereco_numero(), // Corrigido: usa getEndereco_numero()
+                    cliente.getEndereco_bairro(), // Corrigido: usa getEndereco_bairro()
+                    cliente.getEndereco_complemento() // Corrigido: usa getEndereco_complemento()
             });
         }
     }
-
     private JPanel criarPainelPedidos() {
         JPanel panel = new JPanel();
         panel.add(new JLabel("Funcionalidade de pedidos ainda será implementada."));
