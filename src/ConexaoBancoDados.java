@@ -5,8 +5,8 @@ import java.sql.SQLException;
 
 public class ConexaoBancoDados {
     private static final String URL = "jdbc:postgresql://localhost:5432/rest";
-    private static final String USUARIO = "seu_usuário";
-    private static final String SENHA = "sua_senha";
+    private static final String USUARIO = "postgres";
+    private static final String SENHA = "123456";
 
     // Bloco estático para garantir que o driver seja carregado uma vez
     static {

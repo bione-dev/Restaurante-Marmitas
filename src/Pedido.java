@@ -74,8 +74,8 @@ public class Pedido {
     }
 
     public void setProdutos(List<Produto> produtos) {
-        if (produtos == null || produtos.isEmpty()) {
-            throw new IllegalArgumentException("A lista de produtos não pode ser nula ou vazia.");
+        if (produtos == null) {
+            throw new IllegalArgumentException("A lista de produtos não pode ser nula.");
         }
         this.produtos = produtos;
     }

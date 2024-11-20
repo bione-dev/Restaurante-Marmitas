@@ -92,26 +92,25 @@ public class ProdutoDAO {
         }
     }
 
-    // Buscar produtos por nome
-    public List<Produto> buscarProdutoPorNome(String nome) {
-        List<Produto> produtos = new ArrayList<>();
-        String sql = "SELECT * FROM Produto WHERE nome LIKE ?";
+    public Produto buscarProdutoPorNome(String nome) {
+        String sql = "SELECT * FROM Produto WHERE nome = ?";
         try (Connection conn = ConexaoBancoDados.obterConexao();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
-            pstmt.setString(1, "%" + nome + "%");
+
+            pstmt.setString(1, nome);
             ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                Produto produto = new Produto();
-                produto.setId(rs.getInt("id"));
-                produto.setNome(rs.getString("nome"));
-                produto.setPreco(rs.getDouble("preco"));
-                produto.setTipo(rs.getString("tipo"));
-                produtos.add(produto);
+            if (rs.next()) {
+                return new Produto(
+                    rs.getInt("id"),
+                    rs.getString("nome"),
+                    rs.getDouble("preco"),
+                    rs.getString("tipo")
+                );
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar produtos por nome: " + e.getMessage());
+            e.printStackTrace();
         }
-        return produtos;
+        return null; // Produto não encontrado
+    
     }
 }
