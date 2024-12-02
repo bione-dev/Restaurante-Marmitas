@@ -4,7 +4,7 @@ import java.util.List;
 
 public class PedidoDAO {
 
-    // Método para adicionar um pedido ao banco de dados
+    
     public void adicionarPedido(Pedido pedido) {
         String sqlPedido = "INSERT INTO Pedido (data, data_hora, cliente_id, forma_entrega, forma_pagamento, entrega_confirmada) VALUES (?, ?, ?, ?, ?, ?)";
         String sqlPedidoProduto = "INSERT INTO Pedido_Produto (pedido_id, nome_produto) VALUES (?, ?)";
@@ -30,7 +30,7 @@ public class PedidoDAO {
                 // Inserir os produtos relacionados na tabela Pedido_Produto
                 for (Produto produto : pedido.getProdutos()) {
                     pstmtPedidoProduto.setInt(1, pedidoId);
-                    pstmtPedidoProduto.setString(2, produto.getNome()); // Usar nome_produto
+                    pstmtPedidoProduto.setString(2, produto.getNome()); 
                     pstmtPedidoProduto.addBatch();
                 }
                 pstmtPedidoProduto.executeBatch();
