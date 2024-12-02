@@ -3,20 +3,20 @@ public class Produto {
     private int id;
     private String nome;
     private double preco;
-    private String tipo; // Alteração de TipoProduto para String
+    private String tipo; 
 
-    // Construtor padrão
+    
     public Produto() {}
 
-    // Construtor para inicialização de todos os campos
+    
     public Produto(int id, String nome, double preco, String tipo) {
         this.id = id;
         this.nome = nome;
-        this.setPreco(preco); // Utiliza o setter para aplicar o validador
+        this.setPreco(preco); 
         this.tipo = tipo;
     }
 
-    // Getters e Setters
+    
     public int getId() {
         return id;
     }
@@ -56,7 +56,7 @@ public class Produto {
         return nome + " - " + tipo;
     }
 
-    // Método toString para representação textual
+    
     @Override
     public String toString() {
         return "Produto{" +
