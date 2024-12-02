@@ -4,7 +4,7 @@ import java.util.List;
 
 public class ProdutoDAO {
 
-    // Adicionar um produto ao banco de dados
+    
     public void adicionarProduto(Produto produto) {
         String sql = "INSERT INTO Produto (nome, preco, tipo) VALUES (?, ?, ?)";
         try (Connection conn = ConexaoBancoDados.obterConexao();
