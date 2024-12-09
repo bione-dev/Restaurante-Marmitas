@@ -14,12 +14,12 @@ public class PedidoDAO {
              PreparedStatement pstmtPedidoProduto = conn.prepareStatement(sqlPedidoProduto)) {
 
             // Inserir o pedido na tabela Pedido
-            pstmtPedido.setDate(1, Date.valueOf(pedido.getData())); // Data do pedido
-            pstmtPedido.setTimestamp(2, Timestamp.valueOf(pedido.getDataHora())); // Data e hora do pedido
-            pstmtPedido.setInt(3, pedido.getCliente().getId()); // ID do cliente
-            pstmtPedido.setString(4, pedido.getFormaEntrega()); // Forma de entrega
-            pstmtPedido.setString(5, pedido.getFormaPagamento()); // Forma de pagamento
-            pstmtPedido.setBoolean(6, pedido.isEntregaConfirmada()); // Entrega confirmada
+            pstmtPedido.setDate(1, Date.valueOf(pedido.getData())); 
+            pstmtPedido.setTimestamp(2, Timestamp.valueOf(pedido.getDataHora())); 
+            pstmtPedido.setInt(3, pedido.getCliente().getId()); 
+            pstmtPedido.setString(4, pedido.getFormaEntrega()); 
+            pstmtPedido.setString(5, pedido.getFormaPagamento()); 
+            pstmtPedido.setBoolean(6, pedido.isEntregaConfirmada()); 
             pstmtPedido.executeUpdate();
 
             // Obter o ID do pedido gerado

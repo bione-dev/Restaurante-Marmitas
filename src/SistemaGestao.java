@@ -5,6 +5,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
 
 public class SistemaGestao extends JFrame {
     private JTabbedPane tabbedPane;
@@ -16,6 +20,8 @@ public class SistemaGestao extends JFrame {
     private JComboBox<String> produtoBoxPedidos;
     private JTable tabelaPedidosDelivery;
     private JTable tabelaPedidosRetirada;
+
+    private Scanner scanner = new Scanner(System.in); // Importado java.util.Scanner
 
     public SistemaGestao() {
         clienteDAO = new ClienteDAO();
@@ -41,6 +47,9 @@ public class SistemaGestao extends JFrame {
         add(tabbedPane);
     }
 
+    /**
+     * Cria o painel de clientes com tabelas e formulários.
+     */
     private JPanel criarPainelClientes() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -91,6 +100,7 @@ public class SistemaGestao extends JFrame {
 
         panel.add(formPanel, BorderLayout.SOUTH);
 
+        // Ação do botão Adicionar Cliente
         adicionarButton.addActionListener(e -> {
             try {
                 String nome = nomeField.getText();
@@ -107,6 +117,7 @@ public class SistemaGestao extends JFrame {
                 atualizarTabelaClientes(modeloTabela);
                 JOptionPane.showMessageDialog(panel, "Cliente adicionado com sucesso!");
 
+                // Limpar campos
                 nomeField.setText("");
                 aniversarioField.setText("");
                 whatsappField.setText("");
@@ -114,11 +125,12 @@ public class SistemaGestao extends JFrame {
                 numeroField.setText("");
                 bairroField.setText("");
                 complementoField.setText("");
-            } catch (Exception ex) {
+            } catch (Exception ex) { // Renomeado para 'ex'
                 JOptionPane.showMessageDialog(panel, "Erro ao adicionar cliente: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
 
+        // Ação do botão Remover Cliente
         removerButton.addActionListener(e -> {
             int linhaSelecionada = tabelaClientes.getSelectedRow();
             if (linhaSelecionada == -1) {
@@ -127,30 +139,47 @@ public class SistemaGestao extends JFrame {
             }
 
             int idCliente = (int) tabelaClientes.getValueAt(linhaSelecionada, 0);
-            clienteDAO.excluirCliente(idCliente);
-            atualizarTabelaClientes(modeloTabela);
-            JOptionPane.showMessageDialog(panel, "Cliente removido com sucesso!");
+            try {
+                clienteDAO.excluirCliente(idCliente);
+                atualizarTabelaClientes(modeloTabela);
+                JOptionPane.showMessageDialog(panel, "Cliente removido com sucesso!");
+            } catch (Exception ex) { // Renomeado para 'ex'
+                JOptionPane.showMessageDialog(panel, "Erro ao remover cliente: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         return panel;
     }
 
+    /**
+     * Atualiza a tabela de clientes com os dados do banco.
+     *
+     * @param modeloTabela O modelo da tabela a ser atualizado.
+     */
     private void atualizarTabelaClientes(DefaultTableModel modeloTabela) {
-        modeloTabela.setRowCount(0);
-        for (Cliente cliente : clienteDAO.listarClientes()) {
-            modeloTabela.addRow(new Object[]{
-                    cliente.getId(),
-                    cliente.getNome(),
-                    cliente.getAniversario(),
-                    cliente.getWhatsapp(),
-                    cliente.getEndereco_rua(),
-                    cliente.getEndereco_numero(),
-                    cliente.getEndereco_bairro(),
-                    cliente.getEndereco_complemento()
-            });
+        try {
+            modeloTabela.setRowCount(0);
+            List<Cliente> clientes = clienteDAO.listarClientes();
+            for (Cliente cliente : clientes) {
+                modeloTabela.addRow(new Object[]{
+                        cliente.getId(),
+                        cliente.getNome(),
+                        cliente.getAniversario(),
+                        cliente.getWhatsapp(),
+                        cliente.getEndereco_rua(),
+                        cliente.getEndereco_numero(),
+                        cliente.getEndereco_bairro(),
+                        cliente.getEndereco_complemento()
+                });
+            }
+        } catch (Exception e) { // Certifique-se de que aqui está 'e' sem duplicação
+            JOptionPane.showMessageDialog(this, "Erro ao listar clientes: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Cria o painel de produtos com tabelas e formulários.
+     */
     private JPanel criarPainelProdutos() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -185,6 +214,7 @@ public class SistemaGestao extends JFrame {
 
         panel.add(formPanel, BorderLayout.SOUTH);
 
+        // Ação do botão Adicionar Produto
         adicionarButton.addActionListener(e -> {
             try {
                 String nome = nomeField.getText();
@@ -197,14 +227,18 @@ public class SistemaGestao extends JFrame {
                 atualizarTabelaProdutos(modeloTabela);
                 JOptionPane.showMessageDialog(panel, "Produto adicionado com sucesso!");
 
+                // Limpar campos
                 nomeField.setText("");
                 precoField.setText("");
                 tipoField.setText("");
-            } catch (Exception ex) {
+            } catch (NumberFormatException ex) { // Renomeado para 'ex'
+                JOptionPane.showMessageDialog(panel, "Preço inválido! Insira um número.", "Erro", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) { // Renomeado para 'ex'
                 JOptionPane.showMessageDialog(panel, "Erro ao adicionar produto: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
 
+        // Ação do botão Remover Produto
         removerButton.addActionListener(e -> {
             int linhaSelecionada = tabelaProdutos.getSelectedRow();
             if (linhaSelecionada == -1) {
@@ -213,26 +247,43 @@ public class SistemaGestao extends JFrame {
             }
 
             int idProduto = (int) tabelaProdutos.getValueAt(linhaSelecionada, 0);
-            produtoDAO.excluirProduto(idProduto);
-            atualizarTabelaProdutos(modeloTabela);
-            JOptionPane.showMessageDialog(panel, "Produto removido com sucesso!");
+            try {
+                produtoDAO.excluirProduto(idProduto);
+                atualizarTabelaProdutos(modeloTabela);
+                JOptionPane.showMessageDialog(panel, "Produto removido com sucesso!");
+            } catch (Exception ex) { // Renomeado para 'ex'
+                JOptionPane.showMessageDialog(panel, "Erro ao remover produto: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         return panel;
     }
 
+    /**
+     * Atualiza a tabela de produtos com os dados do banco.
+     *
+     * @param modeloTabela O modelo da tabela a ser atualizado.
+     */
     private void atualizarTabelaProdutos(DefaultTableModel modeloTabela) {
-        modeloTabela.setRowCount(0);
-        for (Produto produto : produtoDAO.listarTodosProdutos()) {
-            modeloTabela.addRow(new Object[]{
-                    produto.getId(),
-                    produto.getNome(),
-                    produto.getPreco(),
-                    produto.getTipo()
-            });
+        try {
+            modeloTabela.setRowCount(0);
+            List<Produto> produtos = produtoDAO.listarTodosProdutos();
+            for (Produto produto : produtos) {
+                modeloTabela.addRow(new Object[]{
+                        produto.getId(),
+                        produto.getNome(),
+                        produto.getPreco(),
+                        produto.getTipo()
+                });
+            }
+        } catch (Exception e) { // Aqui está 'e', sem duplicação
+            JOptionPane.showMessageDialog(this, "Erro ao listar produtos: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
+    /**
+     * Cria o painel de pedidos com tabelas e formulários.
+     */
     private JPanel criarPainelPedidos() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -254,8 +305,8 @@ public class SistemaGestao extends JFrame {
 
         panel.add(tabbedPanePedidos, BorderLayout.CENTER);
 
-        JPanel formPanel = new JPanel(new BorderLayout());
-        JPanel inputPanel = new JPanel(new GridBagLayout());
+        // Formulário para criar pedidos
+        JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -271,69 +322,76 @@ public class SistemaGestao extends JFrame {
         JButton adicionarProdutoBtn = new JButton("Adicionar Produto");
         JButton criarPedidoBtn = new JButton("Criar Pedido");
         JButton removerPedidoBtn = new JButton("Remover Pedido");
+        JButton confirmarPedidoBtn = new JButton("Confirmar Pedido"); // Novo botão
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        inputPanel.add(new JLabel("Cliente:"), gbc);
+        formPanel.add(new JLabel("Cliente:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
-        inputPanel.add(clienteBoxPedidos, gbc);
+        formPanel.add(clienteBoxPedidos, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        inputPanel.add(new JLabel("Produto:"), gbc);
+        formPanel.add(new JLabel("Produto:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 1;
-        inputPanel.add(produtoBoxPedidos, gbc);
+        formPanel.add(produtoBoxPedidos, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        inputPanel.add(new JLabel("Produtos Selecionados:"), gbc);
+        formPanel.add(new JLabel("Produtos Selecionados:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.gridheight = 2;
-        inputPanel.add(produtoScrollPane, gbc);
+        formPanel.add(produtoScrollPane, gbc);
         gbc.gridheight = 1;
 
         gbc.gridx = 0;
         gbc.gridy = 4;
-        inputPanel.add(new JLabel("Forma de Pagamento:"), gbc);
+        formPanel.add(new JLabel("Forma de Pagamento:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 4;
-        inputPanel.add(pagamentoBox, gbc);
+        formPanel.add(pagamentoBox, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
-        inputPanel.add(new JLabel("Forma de Entrega:"), gbc);
+        formPanel.add(new JLabel("Forma de Entrega:"), gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 5;
-        inputPanel.add(entregaBox, gbc);
+        formPanel.add(entregaBox, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 6;
-        inputPanel.add(adicionarProdutoBtn, gbc);
+        formPanel.add(adicionarProdutoBtn, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 6;
-        inputPanel.add(criarPedidoBtn, gbc);
+        formPanel.add(criarPedidoBtn, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 7;
-        gbc.gridwidth = 2;
-        inputPanel.add(removerPedidoBtn, gbc);
+        formPanel.add(removerPedidoBtn, gbc);
 
-        formPanel.add(inputPanel, BorderLayout.NORTH);
+        gbc.gridx = 1;
+        gbc.gridy = 7;
+        formPanel.add(confirmarPedidoBtn, gbc); // Adiciona o novo botão
+
         panel.add(formPanel, BorderLayout.SOUTH);
 
-        atualizarTabelaPedidos(modeloTabelaDelivery, modeloTabelaRetirada);
+        // Atualizar listas de clientes e produtos
         atualizarListaClientesNoPedidos();
         atualizarListaProdutos();
 
+        // Atualizar a tabela de pedidos inicialmente
+        atualizarTabelaPedidos(modeloTabelaDelivery, modeloTabelaRetirada);
+
+        // Ação do botão Adicionar Produto
         adicionarProdutoBtn.addActionListener(e -> {
             String produtoSelecionado = (String) produtoBoxPedidos.getSelectedItem();
             if (produtoSelecionado != null && !produtosSelecionados.contains(produtoSelecionado)) {
@@ -341,6 +399,7 @@ public class SistemaGestao extends JFrame {
             }
         });
 
+        // Ação do botão Criar Pedido
         criarPedidoBtn.addActionListener(e -> {
             try {
                 String clienteNome = (String) clienteBoxPedidos.getSelectedItem();
@@ -354,21 +413,53 @@ public class SistemaGestao extends JFrame {
                     return;
                 }
 
-                Cliente cliente = clienteDAO.buscarClientePorNome(clienteNome);
-                if (cliente == null) {
+                // Buscar clientes por nome utilizando o método auxiliar
+                List<Cliente> clientesEncontrados = buscarClientesPorNome(clienteNome);
+                Cliente cliente = null;
+
+                if (clientesEncontrados.isEmpty()) {
                     JOptionPane.showMessageDialog(panel, "Cliente não encontrado no banco de dados.", "Erro", JOptionPane.ERROR_MESSAGE);
                     return;
+                } else if (clientesEncontrados.size() == 1) {
+                    cliente = clientesEncontrados.get(0);
+                } else {
+                    // Se múltiplos clientes com o mesmo nome, permitir seleção
+                    String[] nomes = clientesEncontrados.stream()
+                            .map(c -> c.getNome() + " (ID: " + c.getId() + ")")
+                            .toArray(String[]::new);
+                    String clienteSelecionado = (String) JOptionPane.showInputDialog(
+                            panel,
+                            "Múltiplos clientes encontrados. Selecione:",
+                            "Selecionar Cliente",
+                            JOptionPane.PLAIN_MESSAGE,
+                            null,
+                            nomes,
+                            nomes[0]
+                    );
+                    if (clienteSelecionado == null) {
+                        // Usuário cancelou a seleção
+                        return;
+                    }
+                    // Encontrar o cliente selecionado
+                    for (Cliente c : clientesEncontrados) {
+                        String descricao = c.getNome() + " (ID: " + c.getId() + ")";
+                        if (descricao.equals(clienteSelecionado)) {
+                            cliente = c;
+                            break;
+                        }
+                    }
                 }
 
                 List<Produto> produtos = new ArrayList<>();
                 for (int i = 0; i < produtosSelecionados.size(); i++) {
                     String produtoNome = produtosSelecionados.getElementAt(i);
-                    Produto produto = produtoDAO.buscarProdutoPorNome(produtoNome);
-                    if (produto != null) {
-                        produtos.add(produto);
-                    } else {
+                    Produto produtoEncontrado = produtoDAO.buscarProdutoPorNome(produtoNome);
+
+                    if (produtoEncontrado == null) {
                         JOptionPane.showMessageDialog(panel, "Produto não encontrado: " + produtoNome, "Erro", JOptionPane.ERROR_MESSAGE);
                         return;
+                    } else {
+                        produtos.add(produtoEncontrado);
                     }
                 }
 
@@ -382,11 +473,12 @@ public class SistemaGestao extends JFrame {
                 produtosSelecionados.clear();
 
                 JOptionPane.showMessageDialog(panel, "Pedido criado com sucesso!");
-            } catch (Exception ex) {
+            } catch (Exception ex) { // Renomeado para 'ex' para evitar duplicação
                 JOptionPane.showMessageDialog(panel, "Erro ao criar pedido: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         });
 
+        // Ação do botão Remover Pedido
         removerPedidoBtn.addActionListener(e -> {
             int abaSelecionada = tabbedPanePedidos.getSelectedIndex();
             JTable tabela = abaSelecionada == 0 ? tabelaPedidosDelivery : tabelaPedidosRetirada;
@@ -396,32 +488,97 @@ public class SistemaGestao extends JFrame {
                 return;
             }
 
-            int idPedido = (int) tabela.getValueAt(linhaSelecionada, 0);
-            pedidoDAO.cancelarPedido(idPedido);
-            atualizarTabelaPedidos(modeloTabelaDelivery, modeloTabelaRetirada);
-            JOptionPane.showMessageDialog(panel, "Pedido removido com sucesso!");
+            int idPedido = Integer.parseInt(tabela.getValueAt(linhaSelecionada, 0).toString());
+            try {
+                pedidoDAO.cancelarPedido(idPedido);
+                atualizarTabelaPedidos(modeloTabelaDelivery, modeloTabelaRetirada);
+                JOptionPane.showMessageDialog(panel, "Pedido removido com sucesso!");
+            } catch (Exception ex) { // Renomeado para 'ex' para evitar duplicação
+                JOptionPane.showMessageDialog(panel, "Erro ao remover pedido: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
+        // Ação do botão Confirmar Pedido
+        confirmarPedidoBtn.addActionListener(e -> {
+            int abaSelecionada = tabbedPanePedidos.getSelectedIndex();
+            JTable tabela = abaSelecionada == 0 ? tabelaPedidosDelivery : tabelaPedidosRetirada;
+            int linhaSelecionada = tabela.getSelectedRow();
+
+            if (linhaSelecionada == -1) {
+                JOptionPane.showMessageDialog(panel, "Selecione um pedido para confirmar.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int idPedido = Integer.parseInt(tabela.getValueAt(linhaSelecionada, 0).toString());
+
+            try {
+                // Chamar o método para confirmar a entrega do pedido no DAO
+                pedidoDAO.confirmarEntrega(idPedido);
+
+                // Atualizar a tabela para refletir a alteração
+                atualizarTabelaPedidos(modeloTabelaDelivery, modeloTabelaRetirada);
+
+                JOptionPane.showMessageDialog(panel, "Pedido confirmado com sucesso!");
+            } catch (Exception ex) { // Renomeado para 'ex' para evitar duplicação
+                JOptionPane.showMessageDialog(panel, "Erro ao confirmar pedido: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Ação de clicar na tabela de pedidos de Delivery para mostrar detalhes
         tabelaPedidosDelivery.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 int row = tabelaPedidosDelivery.getSelectedRow();
                 if (row != -1) {
-                    int pedidoId = (int) tabelaPedidosDelivery.getValueAt(row, 0);
-                    Pedido pedido = pedidoDAO.buscarPedidoPorId(pedidoId);
-                    if (pedido != null) {
-                        Cliente cliente = pedido.getCliente();
-                        JOptionPane.showMessageDialog(
-                                null,
-                                "Detalhes do Cliente:\n" +
-                                        "Nome: " + cliente.getNome() + "\n" +
-                                        "WhatsApp: " + cliente.getWhatsapp() + "\n" +
-                                        "Endereço: " + cliente.getEndereco_rua() + ", " +
-                                        cliente.getEndereco_numero() + " - " + cliente.getEndereco_bairro() +
-                                        (cliente.getEndereco_complemento() != null && !cliente.getEndereco_complemento().isEmpty()
-                                                ? " (" + cliente.getEndereco_complemento() + ")" : ""),
-                                "Detalhes do Pedido",
-                                JOptionPane.INFORMATION_MESSAGE
-                        );
+                    int pedidoId = Integer.parseInt(tabelaPedidosDelivery.getValueAt(row, 0).toString());
+                    try {
+                        Pedido pedido = pedidoDAO.buscarPedidoPorId(pedidoId);
+                        if (pedido != null) {
+                            Cliente cliente = pedido.getCliente();
+                            JOptionPane.showMessageDialog(
+                                    null,
+                                    "Detalhes do Cliente:\n" +
+                                            "Nome: " + cliente.getNome() + "\n" +
+                                            "WhatsApp: " + cliente.getWhatsapp() + "\n" +
+                                            "Endereço: " + cliente.getEndereco_rua() + ", " +
+                                            cliente.getEndereco_numero() + " - " + cliente.getEndereco_bairro() +
+                                            (cliente.getEndereco_complemento() != null && !cliente.getEndereco_complemento().isEmpty()
+                                                    ? " (" + cliente.getEndereco_complemento() + ")" : ""),
+                                    "Detalhes do Pedido",
+                                    JOptionPane.INFORMATION_MESSAGE
+                            );
+                        }
+                    } catch (Exception ex) { // Renomeado para 'ex' para evitar duplicação
+                        JOptionPane.showMessageDialog(null, "Erro ao buscar detalhes do pedido: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+
+        // Opcional: Adicionar MouseListener para a tabela de Retirada também, se desejar
+        tabelaPedidosRetirada.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                int row = tabelaPedidosRetirada.getSelectedRow();
+                if (row != -1) {
+                    int pedidoId = Integer.parseInt(tabelaPedidosRetirada.getValueAt(row, 0).toString());
+                    try {
+                        Pedido pedido = pedidoDAO.buscarPedidoPorId(pedidoId);
+                        if (pedido != null) {
+                            Cliente cliente = pedido.getCliente();
+                            JOptionPane.showMessageDialog(
+                                    null,
+                                    "Detalhes do Cliente:\n" +
+                                            "Nome: " + cliente.getNome() + "\n" +
+                                            "WhatsApp: " + cliente.getWhatsapp() + "\n" +
+                                            "Endereço: " + cliente.getEndereco_rua() + ", " +
+                                            cliente.getEndereco_numero() + " - " + cliente.getEndereco_bairro() +
+                                            (cliente.getEndereco_complemento() != null && !cliente.getEndereco_complemento().isEmpty()
+                                                    ? " (" + cliente.getEndereco_complemento() + ")" : ""),
+                                    "Detalhes do Pedido",
+                                    JOptionPane.INFORMATION_MESSAGE
+                            );
+                        }
+                    } catch (Exception ex) { // Renomeado para 'ex' para evitar duplicação
+                        JOptionPane.showMessageDialog(null, "Erro ao buscar detalhes do pedido: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -430,45 +587,86 @@ public class SistemaGestao extends JFrame {
         return panel;
     }
 
+    /**
+     * Atualiza a tabela de pedidos com os dados do banco, separando por forma de entrega.
+     *
+     * @param modeloDelivery O modelo da tabela de pedidos de Delivery.
+     * @param modeloRetirada O modelo da tabela de pedidos de Retirada.
+     */
     private void atualizarTabelaPedidos(DefaultTableModel modeloDelivery, DefaultTableModel modeloRetirada) {
-        modeloDelivery.setRowCount(0);
-        modeloRetirada.setRowCount(0);
+        try {
+            modeloDelivery.setRowCount(0);
+            modeloRetirada.setRowCount(0);
 
-        List<Pedido> pedidos = pedidoDAO.listarPedidos();
+            List<Pedido> pedidos = pedidoDAO.listarPedidos();
 
-        for (Pedido pedido : pedidos) {
-            String produtosNomes = String.join(", ", pedido.getProdutos().stream().map(Produto::getNome).toList());
-            Object[] row = {
-                    pedido.getId(),
-                    pedido.getCliente().getNome(),
-                    produtosNomes,
-                    pedido.getFormaPagamento(),
-                    pedido.isEntregaConfirmada() ? "Sim" : "Não",
-                    pedido.calcularTotal()
-            };
+            for (Pedido pedido : pedidos) {
+                String produtosNomes = String.join(", ", pedido.getProdutos().stream().map(Produto::getNome).toList());
+                Object[] row = {
+                        pedido.getId(),
+                        pedido.getCliente().getNome(),
+                        produtosNomes,
+                        pedido.getFormaPagamento(),
+                        pedido.isEntregaConfirmada() ? "Sim" : "Não",
+                        String.format("%.2f", pedido.calcularTotal())
+                };
 
-            if ("Delivery".equalsIgnoreCase(pedido.getFormaEntrega())) {
-                modeloDelivery.addRow(row);
-            } else {
-                modeloRetirada.addRow(row);
+                if ("Delivery".equalsIgnoreCase(pedido.getFormaEntrega())) {
+                    modeloDelivery.addRow(row);
+                } else {
+                    modeloRetirada.addRow(row);
+                }
+            }
+        } catch (Exception e) { // Aqui está 'e', sem duplicação
+            JOptionPane.showMessageDialog(this, "Erro ao listar pedidos: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Atualiza a lista de clientes no combobox de pedidos.
+     */
+    private void atualizarListaClientesNoPedidos() {
+        try {
+            clienteBoxPedidos.removeAllItems();
+            List<Cliente> clientes = clienteDAO.listarClientes();
+            for (Cliente cliente : clientes) {
+                clienteBoxPedidos.addItem(cliente.getNome());
+            }
+        } catch (Exception e) { // Aqui está 'e', sem duplicação
+            JOptionPane.showMessageDialog(this, "Erro ao carregar clientes: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Atualiza a lista de produtos no combobox de pedidos.
+     */
+    private void atualizarListaProdutos() {
+        try {
+            produtoBoxPedidos.removeAllItems();
+            List<Produto> produtos = produtoDAO.listarTodosProdutos();
+            for (Produto produto : produtos) {
+                produtoBoxPedidos.addItem(produto.getNome());
+            }
+        } catch (Exception e) { // Aqui está 'e', sem duplicação
+            JOptionPane.showMessageDialog(this, "Erro ao carregar produtos: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Método auxiliar para buscar clientes por nome utilizando listarClientes()
+     *
+     * @param nome O nome ou parte do nome do cliente a ser buscado.
+     * @return Uma lista de clientes que correspondem ao critério de busca.
+     */
+    private List<Cliente> buscarClientesPorNome(String nome) throws SQLException {
+        List<Cliente> todosClientes = clienteDAO.listarClientes();
+        List<Cliente> resultado = new ArrayList<>();
+        for (Cliente cliente : todosClientes) {
+            if (cliente.getNome().toLowerCase().contains(nome.toLowerCase())) {
+                resultado.add(cliente);
             }
         }
-    }
-
-    private void atualizarListaClientesNoPedidos() {
-        clienteBoxPedidos.removeAllItems();
-        List<Cliente> clientes = clienteDAO.listarClientes();
-        for (Cliente cliente : clientes) {
-            clienteBoxPedidos.addItem(cliente.getNome());
-        }
-    }
-
-    private void atualizarListaProdutos() {
-        produtoBoxPedidos.removeAllItems();
-        List<Produto> produtos = produtoDAO.listarTodosProdutos();
-        for (Produto produto : produtos) {
-            produtoBoxPedidos.addItem(produto.getNome());
-        }
+        return resultado;
     }
 
     public static void main(String[] args) {

@@ -6,17 +6,17 @@ import java.util.List;
 
 public class Pedido {
     private int id;
-    private LocalDateTime dataHora; // Data e hora do pedido
+    private LocalDateTime dataHora; 
     private Cliente cliente;
     private List<Produto> produtos;
-    private String formaEntrega;  // Alterado para String para representar valor diretamente do banco
-    private String formaPagamento; // Alterado para String para representar valor diretamente do banco
+    private String formaEntrega; 
+    private String formaPagamento; 
     private boolean entregaConfirmada;
 
-    // Construtor padrão
+   
     public Pedido() {}
 
-    // Construtor para inicialização de todos os campos principais
+    
     public Pedido(int id, Cliente cliente, List<Produto> produtos, String formaEntrega, String formaPagamento) {
         this.id = id;
         this.dataHora = LocalDateTime.now();
@@ -27,7 +27,7 @@ public class Pedido {
         this.entregaConfirmada = false;
     }
 
-    // Getters e Setters
+    
     public int getId() {
         return id;
     }
